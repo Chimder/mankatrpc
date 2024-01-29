@@ -1,6 +1,5 @@
 import { Skeleton } from "@/components/ui/skeleton";
-import { mangaControllerGetUserManga } from "@/shared/Api/generated";
-import { useQuery } from "@tanstack/react-query";
+import { trpc } from "@/shared/utils/trpc";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -10,12 +9,14 @@ const FavoriteList = () => {
   const path = useRouter();
   const { data: session } = useSession();
 
-  const { data: mangas, isFetching } = useQuery({
-    queryKey: ["user-favorite"],
-    queryFn: () =>
-      mangaControllerGetUserManga({ email: session?.user?.email as string }),
-    staleTime: 0,
-  });
+  const { data: mangas, isFetching } = trpc.manga.getUserFavoriteManga.useQuery(
+    {
+      email: session?.user?.email as string,
+    },
+    { staleTime: 0 }
+  );
+
+  console.log("FAVORITEMANGA", mangas);
 
   return (
     <div className="">

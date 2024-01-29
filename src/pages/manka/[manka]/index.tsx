@@ -60,24 +60,20 @@ const Manga = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
       refetchOnMount: false,
     }
   );
-  console.log("MAINMANKA", manga);
 
-  const {
-    data: favorite,
-    refetch: refetchFavorite,
-    isPending,
-  } = trpc.manga.getUserFavoriteManga.useQuery(
-    {
-      email: session?.user?.email as string,
-    },
-    {
-      enabled: !!session,
-      staleTime: 0,
-    }
-  );
-  // console.log("favorite", favorite);
+  const { data: favorite, refetch: refetchFavorite } =
+    trpc.manga.getUserFavoriteManga.useQuery(
+      {
+        email: session?.user?.email as string,
+      },
+      {
+        enabled: !!session,
+        staleTime: 0,
+      }
+    );
+  console.log("favorite", favorite);
 
-  const { mutate } = trpc.user.toggleUserFavoriteManga.useMutation({
+  const { mutate, isPending } = trpc.user.toggleUserFavoriteManga.useMutation({
     onSuccess: () => {
       refetchFavorite();
     },

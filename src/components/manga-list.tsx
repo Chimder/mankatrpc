@@ -1,14 +1,10 @@
-import { mangaControllerGetMangaByGenres } from "@/shared/Api/generated";
 import { useAppSelector } from "@/shared/Store/store";
-import { useInfiniteQuery } from "@tanstack/react-query";
 import React, { useEffect } from "react";
 import Link from "next/link";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useInView } from "react-intersection-observer";
+import { trpc } from "@/shared/utils/trpc";
 
-type pageParam = {
-  pageParam: number;
-};
 
 export const MangaList = () => {
   const {
@@ -21,20 +17,6 @@ export const MangaList = () => {
     inputValue,
   } = useAppSelector((store) => store.tagSlice);
 
-  const fetchAnimePages = async ({ pageParam }: pageParam) => {
-    const response = await mangaControllerGetMangaByGenres({
-      name: inputValue,
-      genres: genresTag,
-      status: statusTag,
-      country: langTag,
-      orderField: sortName,
-      orderDirection: sortValue,
-      page: pageParam,
-      perPage: 30,
-    });
-
-    return response;
-  };
   const {
     data: mangas,
     refetch,
@@ -42,19 +24,28 @@ export const MangaList = () => {
     isFetching,
     isFetchingNextPage,
     hasNextPage,
-  } = useInfiniteQuery({
-    queryKey: ["mangas"],
-    queryFn: fetchAnimePages,
-    getNextPageParam: (lastPage, pages, lastPageParam) => {
-      if (lastPage.length === 0) {
-        return undefined;
-      }
-      return lastPageParam + 1;
+  } = trpc.manga.getMangaByGenres.useInfiniteQuery(
+    {
+      genres: genresTag,
+      name: inputValue,
+      status: statusTag,
+      country: langTag,
+      orderField: sortName,
+      orderSort: sortValue,
+      perPage: 30,
     },
-    initialPageParam: 1,
-    refetchOnWindowFocus: false,
-  });
+    {
+      getNextPageParam: (lastPage) => {
+        if (lastPage.items.length === 0) {
+          return undefined;
+        }
+        return lastPage?.nextCursor;
+      },
+      refetchOnWindowFocus: false,
+    }
+  );
 
+  console.log("INFIN", mangas?.pages);
   useEffect(() => {
     refetch();
   }, [genresTag, langTag, statusTag, sortTag, inputValue, refetch]);
@@ -65,10 +56,10 @@ export const MangaList = () => {
       fetchNextPage();
     }
   }, [inView]);
-
   return (
     <div className="containerM px-0 pt-8">
       <div className="grid w-full grid-cols-6 gap-5 xl:grid-cols-5 xl:gap-4 lg:grid-cols-4 lg:gap-3 md:grid-cols-3 md:gap-2 md:px-10 sm:px-1">
+        {/* {isFetching && !isFetchingNextPage */}
         {isFetching && !isFetchingNextPage
           ? Array.from({ length: 20 }, (_, index) => (
               <React.Fragment key={`skeleton-${index}`}>
@@ -82,27 +73,29 @@ export const MangaList = () => {
                 </div>
               </React.Fragment>
             ))
-          : mangas?.pages?.flat().map((manga) => (
-              <Link
-                className="relative z-50"
-                key={manga?.name}
-                href={`/manka/${manga?.name}`}
-              >
-                <img
-                  ref={ref}
-                  src={manga?.img}
-                  alt=""
-                  className="h-full w-full rounded"
-                />
-                <div
-                  className="absolute bottom-1 z-50 flex w-full px-3 py-0 font-medium text-white sm:hidden "
-                  style={{ WebkitTextStroke: "0.2px black" }}
+          : mangas?.pages?.flat().map((page) =>
+              page.items.map((manga) => (
+                <Link
+                  className="relative z-50"
+                  key={manga.name}
+                  href={`/manka/${manga.name}`}
                 >
-                  <img src="/img/lang/JP.svg" width={20} height={20} alt="" />
-                  <div>{manga?.name}</div>
-                </div>
-              </Link>
-            ))}
+                  <img
+                    ref={ref}
+                    src={manga.img}
+                    alt=""
+                    className="h-full w-full rounded"
+                  />
+                  <div
+                    className="absolute bottom-1 z-50 flex w-full px-3 py-0 font-medium text-white sm:hidden "
+                    style={{ WebkitTextStroke: "0.2px black" }}
+                  >
+                    <img src="/img/lang/JP.svg" width={20} height={20} alt="" />
+                    <div>{manga.name}</div>
+                  </div>
+                </Link>
+              ))
+            )}
       </div>
     </div>
   );

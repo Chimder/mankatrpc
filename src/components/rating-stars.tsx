@@ -1,27 +1,21 @@
-import {
-  MangaDto,
-  mangaControllerGetMangaRating,
-} from "@/shared/Api/generated";
-import { useMutation } from "@tanstack/react-query";
 import React, { useState } from "react";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 import { StarFilledIcon } from "@radix-ui/react-icons";
+import { trpc } from "@/shared/utils/trpc";
+import { Anime } from "@prisma/client";
 
-const RatingStars = ({ ...manga }: MangaDto) => {
-  const [rating, setRating] = useState<number>(manga.averageRating);
+const RatingStars = ({ ...manga }: Anime) => {
+  const [rating, setRating] = useState<number>(manga?.averageRating!);
   const [hover, setHover] = useState<number | null>(null);
   const [showNotification, setShowNotification] = useState(false);
 
-  const { mutate } = useMutation({
-    mutationKey: ["rating"],
-    mutationFn: (newRating: number) =>
-      mangaControllerGetMangaRating({ name: manga?.name, rating: newRating }),
+  const { mutate } = trpc.manga.addMangaRating.useMutation({
     onSuccess: () => {
       setShowNotification(true);
       setTimeout(() => setShowNotification(false), 3000);
 
       const ratedAnimes = JSON.parse(
-        localStorage.getItem("ratedAnimes") || "[]",
+        localStorage.getItem("ratedAnimes") || "[]"
       );
       ratedAnimes.push(manga.name);
       localStorage.setItem("ratedAnimes", JSON.stringify(ratedAnimes));
@@ -38,7 +32,7 @@ const RatingStars = ({ ...manga }: MangaDto) => {
       console.log("Вы уже оценили это аниме!");
       return;
     }
-    mutate(newRating);
+    mutate({ name: manga?.name, rating: newRating });
   };
 
   return (

@@ -8,7 +8,7 @@ export interface tagSlice {
   sortTag: string;
   inputValue: string;
   sortName: string;
-  sortValue: string;
+  sortValue: "asc" | "desc";
 }
 
 const initialState: tagSlice = {
@@ -18,7 +18,7 @@ const initialState: tagSlice = {
   sortTag: "",
   inputValue: "",
   sortName: "",
-  sortValue: "",
+  sortValue: "asc",
 };
 
 export const tagSlice = createSlice({

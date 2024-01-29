@@ -13,21 +13,20 @@ import { userControllerDeleteAccount } from "@/shared/Api/generated";
 import { useMutation } from "@tanstack/react-query";
 import { signOut, useSession } from "next-auth/react";
 import { PropsWithChildren } from "react";
+import { trpc } from "@/shared/utils/trpc";
 
 export function DialogDemo({ children }: PropsWithChildren) {
   const { data: session, status } = useSession();
-
   console.log(session);
+
   const {
     mutate: DeleteUser,
     isSuccess,
     isPending,
-  } = useMutation({
-    mutationKey: ["deleteUser"],
-    mutationFn: () =>
-      userControllerDeleteAccount({ email: session?.user?.email as string }),
+  } = trpc.user.deleteUserAccount.useMutation({
     onSuccess: () => signOut(),
   });
+
   return (
     <Dialog>
       <DialogTrigger asChild>{children}</DialogTrigger>
@@ -46,7 +45,9 @@ export function DialogDemo({ children }: PropsWithChildren) {
           ) : (
             <>
               <Button
-                onClick={() => DeleteUser()}
+                onClick={() =>
+                  DeleteUser({ email: session?.user?.email as string })
+                }
                 className="text-white"
                 type="submit"
               >

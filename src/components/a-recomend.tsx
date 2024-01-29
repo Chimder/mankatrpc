@@ -2,8 +2,8 @@ import React, { useEffect } from "react";
 import Link from "next/link";
 import { RecomendAnim } from "@/shared/data/PopRecod";
 import { useQuery } from "@tanstack/react-query";
-import { mangaControllerGetMangaByName } from "@/shared/Api/generated";
 import { useRouter } from "next/router";
+import { trpc } from "@/shared/utils/trpc";
 
 const AnimeRecomend = ({ name }: any) => {
   const param = useRouter();
@@ -13,11 +13,17 @@ const AnimeRecomend = ({ name }: any) => {
     data: manga,
     refetch,
     isFetching,
-  } = useQuery({
-    queryKey: ["isAnime"],
-    queryFn: () => mangaControllerGetMangaByName({ name: name as string }),
-    staleTime: 0,
-  });
+  } = trpc.manga.getMangaChapter.useQuery(
+    {
+      name: "",
+      chapter: 0,
+    },
+    {
+      staleTime: 0,
+      refetchOnMount: false,
+      refetchOnWindowFocus: false,
+    }
+  );
 
   useEffect(() => {
     refetch();

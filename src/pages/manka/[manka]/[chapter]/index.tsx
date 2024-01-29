@@ -1,25 +1,16 @@
 import React, { ReactElement, useEffect } from "react";
-import {
-  mangaControllerGetAllManga,
-  mangaControllerGetMangaChapter,
-} from "@/shared/Api/generated";
 import { useRouter } from "next/router";
-import { GetStaticProps } from "next";
+import { GetStaticProps, InferGetServerSidePropsType } from "next";
 import AsideBarChapter from "@/components/aside-bar-chapter";
+import { trpc } from "@/shared/utils/trpc";
+import { db } from "@/shared/utils/db";
+import { appRouter } from "@/shared/server/routers/_app";
+import { createServerSideHelpers } from "@trpc/react-query/server";
+import SuperJSON from "superjson";
 
-export type ChapterDto = {
-  animeName: string;
-  chapter: number;
-  img: string[];
-  name: string;
-  createdAt: string;
-};
-type Props = {
-  data: ChapterDto;
-};
 export const getStaticPaths = async () => {
-  const data = await mangaControllerGetAllManga();
-  const paths = data?.flatMap((anime) => {
+  const data = await db.anime.findMany({ include: { chapters: true } });
+  const paths = data.flatMap((anime) => {
     return anime?.chapters?.map((chapterNumber) => ({
       params: { manka: anime.name, chapter: chapterNumber.chapter.toString() },
     }));
@@ -31,15 +22,36 @@ export const getStaticPaths = async () => {
 };
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
-  const data = await mangaControllerGetMangaChapter({
-    name: params?.manka as string,
-    chapter: params?.chapter as string,
+  const helpers = createServerSideHelpers({
+    router: appRouter,
+    ctx: {},
+    transformer: SuperJSON,
   });
-  return { props: { data } };
+  const data = await helpers.manga.getMangaChapter.prefetch({
+    name: params?.manka as string,
+    chapter: Number(params?.chapter),
+  });
+  return {
+    props: {
+      trpcState: helpers.dehydrate(),
+      // manka,
+    },
+    revalidate: 10,
+  };
 };
 
-const Chapter = ({ data: chapter }: Props) => {
+const Chapter = (props: InferGetServerSidePropsType<typeof getStaticProps>) => {
   const router = useRouter();
+  const { data: chapter } = trpc.manga.getMangaChapter.useQuery(
+    {
+      name: "",
+      chapter: 0,
+    },
+    {
+      refetchOnMount: false,
+      refetchOnWindowFocus: false,
+    }
+  );
   return (
     <>
       <div className="flex items-center justify-center">
@@ -50,7 +62,7 @@ const Chapter = ({ data: chapter }: Props) => {
             </div>
           ))}
         </div>
-        <AsideBarChapter name={chapter.animeName} />
+        <AsideBarChapter name={chapter?.animeName} />
       </div>
     </>
   );

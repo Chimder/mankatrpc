@@ -20,12 +20,11 @@ export const userRouter = router({
     .input(
       z.object({
         id: z.string(),
-        email: z
-          .string()
-          .min(1, { message: "This field has to be filled." })
-          .email("This is not a valid email."),
+        email: z.string(),
+        // .min(1, { message: "This field has to be filled." })
+        // .email("This is not a valid email."),
         name: z.string(),
-        image: z.string().url({ message: "Invalid IMG Url" }),
+        image: z.string(),
       })
     )
     .mutation(async (opts) => {

@@ -14,18 +14,13 @@ import {
 } from "./ui/dropdown-menu";
 import { Button } from "./ui/button";
 import { DialogDemo } from "./dialog-delete-account";
-import { useMutation } from "@tanstack/react-query";
-import { userControllerDeleteAccount } from "@/shared/Api/generated";
+import { trpc } from "@/shared/utils/trpc";
 
 function AsideBar() {
   const { data: session, status } = useSession();
 
   console.log(session);
-  const { mutate: DeleteUser } = useMutation({
-    mutationKey: ["deleteUser"],
-    mutationFn: () =>
-      userControllerDeleteAccount({ email: session?.user?.email as string }),
-  });
+  const { mutate: DeleteUser } = trpc.user.deleteUserAccount.useMutation();
 
   return (
     <div className="nav_bar_container">

@@ -52,11 +52,11 @@ export const mangaRouter = router({
         country: z.string().optional(),
         orderField: z.string().optional(),
         orderSort: z.enum(["asc", "desc"]).optional(),
-        page: z.number(),
+        cursor: z.number().optional(),
         perPage: z.number(),
       })
     )
-    .query((opts) => {
+    .query(async (opts) => {
       const {
         genres,
         name,
@@ -64,17 +64,19 @@ export const mangaRouter = router({
         country,
         orderField,
         orderSort,
-        page,
+        cursor,
         perPage,
       } = opts.input;
-      const skip = (page - 1) * perPage;
+      const skip = cursor ? cursor * perPage : 0;
+
+      console.log("SKIP", skip);
+      console.log("PERPAGE", perPage);
 
       let orderBy: { [key: string]: "asc" | "desc" | undefined } = {};
       if (orderField && orderSort) {
         orderBy[orderField] = orderSort;
       }
-
-      return db.anime.findMany({
+      const items = await db.anime.findMany({
         where: {
           name: { contains: name, mode: "insensitive" },
           genres: { hasEvery: genres },
@@ -83,8 +85,19 @@ export const mangaRouter = router({
         },
         orderBy: orderBy,
         skip: skip,
-        take: perPage,
+        take: perPage + 1, // получить дополнительный элемент в конце, который мы будем использовать как следующий курсор
       });
+
+      let nextCursor: typeof cursor | undefined = undefined;
+      if (items.length > perPage) {
+        const nextItem = items.pop();
+        nextCursor = cursor ? cursor + 1 : 1; // увеличиваем cursor на 1 с каждым новым запросом
+      }
+
+      return {
+        items,
+        nextCursor,
+      };
     }),
 
   addMangaRating: procedure
@@ -94,7 +107,7 @@ export const mangaRouter = router({
         rating: z.number(),
       })
     )
-    .query(async (opts) => {
+    .mutation(async (opts) => {
       const { name, rating } = opts.input;
       const anime = await db.anime.findFirst({
         where: {
@@ -128,6 +141,12 @@ export const mangaRouter = router({
       }
     }),
 
+    getUserFavorite:procedure.input(
+     z.object({
+      email:z.string(),
+      name:z.string()
+     })
+    )
   getUserFavoriteManga: procedure
     .input(
       z.object({
@@ -136,7 +155,11 @@ export const mangaRouter = router({
     )
     .query(async (opts) => {
       const { email } = opts.input;
-      const user = await getUserFavorite(email);
+      console.log("EMAIL", email);
+      const user = await db.user.findFirst({
+        where: { email: email },
+        select: { favorite: true },
+      });
 
       if (!user?.favorite || user?.favorite.length === 0) {
         return [];

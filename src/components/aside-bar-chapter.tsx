@@ -1,10 +1,9 @@
 import Link from "next/link";
-import { mangaControllerGetMangaByName } from "@/shared/Api/generated";
 import { useRouter } from "next/router";
 import DropDownN from "./drop-down";
 import { Progress } from "./ui/progress";
 import { ArrowLeftIcon, ArrowRightIcon } from "@radix-ui/react-icons";
-import { useQuery } from "@tanstack/react-query";
+import { trpc } from "@/shared/utils/trpc";
 
 interface AsideBarChapterProps {
   name?: string;
@@ -14,9 +13,8 @@ interface AsideBarChapterProps {
 function AsideBarChapter({ name, isSuccess }: AsideBarChapterProps) {
   const router = useRouter();
 
-  const { data: manga } = useQuery({
-    queryKey: [`mangaChap${name}`],
-    queryFn: () => mangaControllerGetMangaByName({ name: name as string }),
+  const { data: manga } = trpc.manga.getMangaByName.useQuery({
+    name: name as string,
   });
 
   const params = Number(router?.query?.chapter);

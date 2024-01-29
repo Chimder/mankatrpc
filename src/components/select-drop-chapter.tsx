@@ -1,12 +1,16 @@
 import Link from "next/link";
 import React from "react";
-import { MangaDto } from "../shared/Api/generated";
+import { Anime, Chapter } from "@prisma/client";
+
+type AnimeWithChapters = Anime & {
+  chapters: Chapter[];
+};
 
 interface SelectDropBtnProps {
   type?: string;
   // data?: string[];
   click?: (e: React.MouseEvent<HTMLButtonElement>, category: string) => void;
-  data?: MangaDto;
+  data?: AnimeWithChapters;
   closeMenu?: any;
 }
 function SelectDropChapter({
