@@ -23,6 +23,7 @@
 # debug
 npm-debug.log*
 yarn-debug.log*
+.eslintrc.json
 yarn-error.log*
 
 # local env files
