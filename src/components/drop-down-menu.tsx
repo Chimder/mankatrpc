@@ -1,8 +1,9 @@
-import React from "react";
-import DropDownN from "./drop-down";
+import React from 'react'
+
+import DropDownN from './drop-down'
 
 interface DropMenuProps {
-  on: (e: React.MouseEvent<HTMLButtonElement>, category: string) => void;
+  on: (e: React.MouseEvent<HTMLButtonElement>, category: string) => void
 }
 export const DropDownMenuN = ({ on }: DropMenuProps) => {
   return (
@@ -19,12 +20,7 @@ export const DropDownMenuN = ({ on }: DropMenuProps) => {
         ctgr="status"
         clsn="min-w-[20vh] w-36 bg-accent"
       ></DropDownN>
-      <DropDownN
-        text="Lang"
-        click={on}
-        ctgr="lang"
-        clsn="min-w-[20vh] w-36 bg-accent"
-      ></DropDownN>
+      <DropDownN text="Lang" click={on} ctgr="lang" clsn="min-w-[20vh] w-36 bg-accent"></DropDownN>
       <DropDownN
         text="Sort By"
         click={on}
@@ -32,5 +28,5 @@ export const DropDownMenuN = ({ on }: DropMenuProps) => {
         clsn="min-w-[20vh] w-36 bg-accent"
       ></DropDownN>
     </>
-  );
-};
+  )
+}

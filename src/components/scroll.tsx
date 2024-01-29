@@ -1,27 +1,24 @@
-import React, { useCallback } from "react";
-import useEmblaCarousel from "embla-carousel-react";
-import { pages } from "@/shared/data/ScrollData";
-import Link from "next/link";
-import {
-  DoubleArrowRightIcon,
-  DoubleArrowLeftIcon,
-} from "@radix-ui/react-icons";
+import React, { useCallback } from 'react'
+import Link from 'next/link'
+import { pages } from '@/shared/data/ScrollData'
+import { DoubleArrowLeftIcon, DoubleArrowRightIcon } from '@radix-ui/react-icons'
+import useEmblaCarousel from 'embla-carousel-react'
 
 export function Scroll() {
-  const [emblaRef, emblaApi] = useEmblaCarousel();
+  const [emblaRef, emblaApi] = useEmblaCarousel()
 
   const scrollPrev = useCallback(() => {
-    if (emblaApi) emblaApi.scrollPrev();
-  }, [emblaApi]);
+    if (emblaApi) emblaApi.scrollPrev()
+  }, [emblaApi])
 
   const scrollNext = useCallback(() => {
-    if (emblaApi) emblaApi.scrollNext();
-  }, [emblaApi]);
+    if (emblaApi) emblaApi.scrollNext()
+  }, [emblaApi])
 
   return (
     <div className="embla" ref={emblaRef}>
       <div className="relative z-10 box-content flex w-full">
-        {pages.map((card) => (
+        {pages.map(card => (
           <div
             key={card.name}
             className="embla__slide h-[80vh] w-full md:h-[40vh]"
@@ -41,8 +38,7 @@ export function Scroll() {
                 <div
                   className="absolute bottom-0 z-20 box-border block h-1/2 w-full"
                   style={{
-                    backgroundImage:
-                      "linear-gradient(0deg, #1b1f35f2, #1b1f35cc 50%, #1b1f3500)",
+                    backgroundImage: 'linear-gradient(0deg, #1b1f35f2, #1b1f35cc 50%, #1b1f3500)',
                   }}
                 />
                 <div className="z-999 flex w-full  items-center p-1">
@@ -65,5 +61,5 @@ export function Scroll() {
         <DoubleArrowRightIcon className="z-999 h-14 w-14  fill-current text-orange-600 hover:text-orange-950 md:w-5" />
       </div>
     </div>
-  );
+  )
 }

@@ -1,20 +1,21 @@
-import { z } from "zod";
-import { procedure, router } from "../trpc";
-import { db } from "@/shared/utils/db";
+import { db } from '@/shared/utils/db'
+import { z } from 'zod'
+
+import { procedure, router } from '../trpc'
 
 const isUser = (email: string) => {
   return db.user.findUnique({
     where: {
       email: email,
     },
-  });
-};
+  })
+}
 export const getUserFavorite = (email: string) => {
   return db.user.findFirst({
     where: { email: email },
     select: { favorite: true },
-  });
-};
+  })
+}
 export const userRouter = router({
   checkOrCreateUser: procedure
     .input(
@@ -25,16 +26,14 @@ export const userRouter = router({
         // .email("This is not a valid email."),
         name: z.string(),
         image: z.string(),
-      })
+      }),
     )
-    .mutation(async (opts) => {
-      console.log("REGINP", opts.input);
-      const user = await isUser(opts.input.email);
+    .mutation(async opts => {
+      const user = await isUser(opts.input.email)
       if (!user) {
-        console.log("No User REggggg");
-        return db.user.create({ data: opts.input });
+        return db.user.create({ data: opts.input })
       } else {
-        return console.log("already created");
+        return console.log('already created')
       }
     }),
 
@@ -43,17 +42,16 @@ export const userRouter = router({
       z.object({
         email: z.string().email(),
         name: z.string(),
-      })
+      }),
     )
-    .mutation(async (opts) => {
-      const { name, email } = opts.input;
-      const user = await getUserFavorite(email);
+    .mutation(async opts => {
+      const { name, email } = opts.input
+      const user = await getUserFavorite(email)
       if (!user) {
-        throw new Error("User not found");
+        throw new Error('User not found')
       }
 
-      const isAnimeInFavorites = await user.favorite.includes(name);
-      console.log("ISANIMEFAV", isAnimeInFavorites);
+      const isAnimeInFavorites = await user.favorite.includes(name)
 
       if (!isAnimeInFavorites) {
         const addpopular = await db.anime.update({
@@ -61,7 +59,7 @@ export const userRouter = router({
           data: {
             popularity: +1 as number,
           },
-        });
+        })
         return db.user.update({
           where: { email: email },
           data: {
@@ -69,16 +67,16 @@ export const userRouter = router({
               push: name,
             },
           },
-        });
+        })
       } else {
         return db.user.update({
           where: { email: email },
           data: {
             favorite: {
-              set: user.favorite.filter((anime) => anime !== name),
+              set: user.favorite.filter(anime => anime !== name),
             },
           },
-        });
+        })
       }
     }),
 
@@ -86,17 +84,17 @@ export const userRouter = router({
     .input(
       z.object({
         email: z.string(),
-      })
+      }),
     )
-    .mutation(async (opts) => {
-      const user = await isUser(opts.input.email);
+    .mutation(async opts => {
+      const user = await isUser(opts.input.email)
       if (!user) {
-        return console.log("User not found");
+        return console.log('User not found')
       }
       return db.user.delete({
         where: {
           email: opts.input.email,
         },
-      });
+      })
     }),
-});
+})

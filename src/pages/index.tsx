@@ -1,34 +1,33 @@
-import Head from "next/head";
-import React from "react";
-import { Scroll } from "@/components/scroll";
-import { ScrollMost } from "@/components/scroll-pop";
-import { createServerSideHelpers } from "@trpc/react-query/server";
-import { GetServerSidePropsContext, InferGetServerSidePropsType } from "next";
-import superjson from "superjson";
-import { appRouter } from "@/shared/server/routers/_app";
-import { trpc } from "@/shared/utils/trpc";
+import React from 'react'
+import { GetServerSidePropsContext, InferGetServerSidePropsType } from 'next'
+import Head from 'next/head'
+import { appRouter } from '@/shared/server/routers/_app'
+import { trpc } from '@/shared/utils/trpc'
+import { createServerSideHelpers } from '@trpc/react-query/server'
+import superjson from 'superjson'
+
+import { Scroll } from '@/components/scroll'
+import { ScrollMost } from '@/components/scroll-pop'
 
 export async function getServerSideProps() {
   const helpers = createServerSideHelpers({
     router: appRouter,
     ctx: {},
     transformer: superjson,
-  });
-  await helpers.manga.getMangaPopular.prefetch();
+  })
+  await helpers.manga.getMangaPopular.prefetch()
   // const data = await mangaControllerGetMankaPopular();
   return {
     props: {
       trpcState: helpers.dehydrate(),
     },
-  };
+  }
 }
-function MainManga(
-  props: InferGetServerSidePropsType<typeof getServerSideProps>
-) {
+function MainManga(props: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const { data: manga } = trpc.manga.getMangaPopular.useQuery(undefined, {
     refetchOnMount: false,
     refetchOnWindowFocus: false,
-  });
+  })
   return (
     <>
       <Head>
@@ -47,7 +46,7 @@ function MainManga(
         </section>
       </main>
     </>
-  );
+  )
 }
 
-export default MainManga;
+export default MainManga

@@ -1,4 +1,10 @@
-import { Button } from "@/components/ui/button";
+import { PropsWithChildren } from 'react'
+import { trpc } from '@/shared/utils/trpc'
+import { ReloadIcon } from '@radix-ui/react-icons'
+import { useMutation } from '@tanstack/react-query'
+import { signOut, useSession } from 'next-auth/react'
+
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
@@ -7,17 +13,10 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { ReloadIcon } from "@radix-ui/react-icons";
-import { userControllerDeleteAccount } from "@/shared/Api/generated";
-import { useMutation } from "@tanstack/react-query";
-import { signOut, useSession } from "next-auth/react";
-import { PropsWithChildren } from "react";
-import { trpc } from "@/shared/utils/trpc";
+} from '@/components/ui/dialog'
 
 export function DialogDemo({ children }: PropsWithChildren) {
-  const { data: session, status } = useSession();
-  console.log(session);
+  const { data: session, status } = useSession()
 
   const {
     mutate: DeleteUser,
@@ -25,7 +24,7 @@ export function DialogDemo({ children }: PropsWithChildren) {
     isPending,
   } = trpc.user.deleteUserAccount.useMutation({
     onSuccess: () => signOut(),
-  });
+  })
 
   return (
     <Dialog>
@@ -45,21 +44,17 @@ export function DialogDemo({ children }: PropsWithChildren) {
           ) : (
             <>
               <Button
-                onClick={() =>
-                  DeleteUser({ email: session?.user?.email as string })
-                }
+                onClick={() => DeleteUser({ email: session?.user?.email as string })}
                 className="text-white"
                 type="submit"
               >
                 Delete
-                {isPending && (
-                  <ReloadIcon className="ml-1 h-4 w-4 animate-spin" />
-                )}
+                {isPending && <ReloadIcon className="ml-1 h-4 w-4 animate-spin" />}
               </Button>
             </>
           )}
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  );
+  )
 }

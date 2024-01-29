@@ -1,55 +1,53 @@
-import { GetStaticProps, InferGetStaticPropsType } from "next";
-import { useRouter } from "next/router";
-import React from "react";
-import { Badge } from "@/components/ui/badge";
-import Link from "next/link";
-import Recomend from "@/components/recomend";
-import { signIn, useSession } from "next-auth/react";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/shared/lib/utils";
-import DotPublication from "@/components/dot-publication";
-import RatingStars from "@/components/rating-stars";
-import { formatCreatedAt } from "@/shared/lib/data-format";
-import useWindowSize from "@/shared/lib/isMobile";
-import { ReloadIcon } from "@radix-ui/react-icons";
-import { db } from "@/shared/utils/db";
-import { createServerSideHelpers } from "@trpc/react-query/server";
-import { appRouter } from "@/shared/server/routers/_app";
-import SuperJSON from "superjson";
-import { trpc } from "@/shared/utils/trpc";
+import React from 'react'
+import { GetStaticProps, InferGetStaticPropsType } from 'next'
+import Link from 'next/link'
+import { useRouter } from 'next/router'
+import { formatCreatedAt } from '@/shared/lib/data-format'
+import useWindowSize from '@/shared/lib/isMobile'
+import { cn } from '@/shared/lib/utils'
+import { appRouter } from '@/shared/server/routers/_app'
+import { db } from '@/shared/utils/db'
+import { trpc } from '@/shared/utils/trpc'
+import { ReloadIcon } from '@radix-ui/react-icons'
+import { createServerSideHelpers } from '@trpc/react-query/server'
+import { signIn, useSession } from 'next-auth/react'
+import SuperJSON from 'superjson'
+
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import Recomend from '@/components/recomend'
 
 export const getStaticPaths = async () => {
-  const data = await db.anime.findMany({ select: { name: true } });
-  const paths = data.map((manga) => ({ params: { manka: manga.name } }));
+  const data = await db.anime.findMany({ select: { name: true } })
+  const paths = data.map(manga => ({ params: { manka: manga.name } }))
   return {
     paths,
     fallback: false,
-  };
-};
+  }
+}
 export const getStaticProps: GetStaticProps = async ({ params }) => {
   const helpers = createServerSideHelpers({
     router: appRouter,
     ctx: {},
     transformer: SuperJSON, // optional - adds superjson serialization
-  });
-  const manka = params?.manka as string;
+  })
+  const manka = params?.manka as string
   await helpers.manga.getMangaByName.prefetch({
     name: manka,
-  });
+  })
   return {
     props: {
       trpcState: helpers.dehydrate(),
       manka,
     },
     revalidate: 10,
-  };
-};
+  }
+}
 
 const Manga = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
-  const { manka } = props;
-  const router = useRouter();
-  const { data: session } = useSession();
+  const { manka } = props
+  const router = useRouter()
+  const { data: session } = useSession()
 
   const { data: manga } = trpc.manga.getMangaByName.useQuery(
     {
@@ -58,36 +56,35 @@ const Manga = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
     {
       refetchOnWindowFocus: false,
       refetchOnMount: false,
-    }
-  );
+    },
+  )
 
-  const { data: favorite, refetch: refetchFavorite } =
-    trpc.manga.getUserFavoriteManga.useQuery(
-      {
-        email: session?.user?.email as string,
-      },
-      {
-        enabled: !!session,
-        staleTime: 0,
-      }
-    );
-  console.log("favorite", favorite);
+  const { data: favorite, refetch: refetchFavorite } = trpc.manga.getUserFavorite.useQuery(
+    {
+      email: session?.user?.email as string,
+      name: manga?.name as string,
+    },
+    {
+      enabled: !!session,
+      staleTime: 0,
+    },
+  )
 
   const { mutate, isPending } = trpc.user.toggleUserFavoriteManga.useMutation({
     onSuccess: () => {
-      refetchFavorite();
+      refetchFavorite()
     },
-  });
+  })
 
   const addFavorite = (name: string | undefined) => {
     if (!session?.user?.email) {
-      signIn();
+      signIn()
     } else {
-      mutate({ email: session?.user?.email as string, name: name! });
+      mutate({ email: session?.user?.email as string, name: name! })
     }
-  };
-
-  const isMobile = useWindowSize();
+  }
+  console.log(manga?.chapters)
+  const isMobile = useWindowSize()
   return (
     <main className="overflow-x-hidden ">
       {/* <section className="relative z-40 flex max-h-[480px] items-center overflow-y-hidden  lg:absolute  lg:-z-10 "> */}
@@ -123,15 +120,13 @@ const Manga = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
                 onClick={() => addFavorite(manga?.name)}
                 className={cn(
                   favorite
-                    ? "bg-primary hover:bg-primary-foreground"
-                    : "bg-teal-600 hover:bg-teal-600/60",
-                  "z-10 text-white md:py-0 sm:mr-3 sm:w-full"
+                    ? 'bg-primary hover:bg-primary-foreground'
+                    : 'bg-teal-600 hover:bg-teal-600/60',
+                  'z-10 text-white md:py-0 sm:mr-3 sm:w-full',
                 )}
               >
-                {favorite ? "Favorite" : "Add To Favorite"}
-                {isPending && (
-                  <ReloadIcon className="ml-1 h-4 w-4 animate-spin" />
-                )}
+                {favorite ? 'Favorite' : 'Add To Favorite'}
+                {isPending && <ReloadIcon className="ml-1 h-4 w-4 animate-spin" />}
               </Button>
               {manga?.genres.map((genres, i) => (
                 <Badge
@@ -149,17 +144,15 @@ const Manga = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
           </div>
         </div>
       </section>
-      <section className="containerM z-100 mx-auto h-full w-full bg-background md:bg-transparent pt-2.5">
+      <section className="containerM z-100 mx-auto h-full w-full bg-background pt-2.5 md:bg-transparent">
         <div className="flex md:flex-col ">
           <aside className="w-1/5 flex-col md:flex md:w-full md:items-center md:pt-4">
             <Recomend />
           </aside>
           <div className="w-4/5 px-5 md:w-full md:px-0">
-            <span className="lg:text-md text-xl font-semibold md:px-4">
-              Chapters
-            </span>
+            <span className="lg:text-md text-xl font-semibold md:px-4">Chapters</span>
             <div className="pt-3 md:px-4 md:pb-14">
-              {manga?.chapters?.map((chap) => (
+              {manga?.chapters?.map(chap => (
                 <Link
                   className="my-2 flex items-center justify-between rounded-sm bg-accent p-4 md:my-1 md:py-3"
                   key={chap.name}
@@ -168,9 +161,7 @@ const Manga = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
                   <div className="lg:text-sm">
                     Ch. {chap.chapter} - {chap.name}
                   </div>
-                  <div className="lg:text-sm">
-                    {formatCreatedAt(Number(chap.createdAt))}
-                  </div>
+                  <div className="lg:text-sm">{formatCreatedAt(chap.createdAt)}</div>
                 </Link>
               ))}
             </div>
@@ -178,7 +169,7 @@ const Manga = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
         </div>
       </section>
     </main>
-  );
-};
+  )
+}
 
-export default Manga;
+export default Manga

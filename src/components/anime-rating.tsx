@@ -1,6 +1,6 @@
-import React from "react";
+import React from 'react'
 
-type Props = {};
+type Props = {}
 
 const AnimeRating = ({ anime }: any) => {
   return (
@@ -14,7 +14,7 @@ const AnimeRating = ({ anime }: any) => {
         <span className="pl-1 text-white">{anime?.imdb_rating}</span>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default AnimeRating;
+export default AnimeRating

@@ -1,26 +1,18 @@
-import Link from "next/link";
-import React from "react";
-import { signIn, useSession, signOut } from "next-auth/react";
-import {
-  MagnifyingGlassIcon,
-  HeartIcon,
-  HeartFilledIcon,
-} from "@radix-ui/react-icons";
-import { ThemeToggle } from "./ui/themeToggle";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
-import { Button } from "./ui/button";
-import { DialogDemo } from "./dialog-delete-account";
-import { trpc } from "@/shared/utils/trpc";
+import React from 'react'
+import Link from 'next/link'
+import { trpc } from '@/shared/utils/trpc'
+import { HeartFilledIcon, HeartIcon, MagnifyingGlassIcon } from '@radix-ui/react-icons'
+import { signIn, signOut, useSession } from 'next-auth/react'
+
+import { DialogDemo } from './dialog-delete-account'
+import { Button } from './ui/button'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from './ui/dropdown-menu'
+import { ThemeToggle } from './ui/themeToggle'
 
 function AsideBar() {
-  const { data: session, status } = useSession();
+  const { data: session, status } = useSession()
 
-  console.log(session);
-  const { mutate: DeleteUser } = trpc.user.deleteUserAccount.useMutation();
+  const { mutate: DeleteUser } = trpc.user.deleteUserAccount.useMutation()
 
   return (
     <div className="nav_bar_container">
@@ -72,7 +64,7 @@ function AsideBar() {
         <ThemeToggle />
       </nav>
     </div>
-  );
+  )
 }
 
-export default AsideBar;
+export default AsideBar

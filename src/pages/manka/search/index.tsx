@@ -1,5 +1,4 @@
-import React from "react";
-import { useAppDispatch, useAppSelector } from "@/shared/Store/store";
+import React from 'react'
 import {
   resetTag,
   setGenresTag,
@@ -7,35 +6,37 @@ import {
   setLangTag,
   setSort,
   setStatus,
-} from "@/shared/Store/Slices/tagSlice";
-import { MangaList } from "@/components/manga-list";
-import { Input } from "@/components/ui/input";
-import { BadgeList } from "@/components/badge-list";
-import { DropDownMenuN } from "@/components/drop-down-menu";
-import { Button } from "@/components/ui/button";
+} from '@/shared/Store/Slices/tagSlice'
+import { useAppDispatch, useAppSelector } from '@/shared/Store/store'
+
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { BadgeList } from '@/components/badge-list'
+import { DropDownMenuN } from '@/components/drop-down-menu'
+import { MangaList } from '@/components/manga-list'
 
 function mangaSearch() {
-  const { inputValue } = useAppSelector((store) => store.tagSlice);
-  const dispatch = useAppDispatch();
+  const { inputValue } = useAppSelector(store => store.tagSlice)
+  const dispatch = useAppDispatch()
   const handleTag = (tag: string, category: string) => {
-    if (category === "genres") {
-      dispatch(setGenresTag(tag));
-    } else if (category === "lang") {
-      dispatch(setLangTag(tag));
-    } else if (category === "status") {
-      dispatch(setStatus(tag));
-    } else if (category === "sort") {
-      dispatch(setSort(tag));
+    if (category === 'genres') {
+      dispatch(setGenresTag(tag))
+    } else if (category === 'lang') {
+      dispatch(setLangTag(tag))
+    } else if (category === 'status') {
+      dispatch(setStatus(tag))
+    } else if (category === 'sort') {
+      dispatch(setSort(tag))
     }
-  };
+  }
   const on = (e: React.MouseEvent<HTMLButtonElement>, category: string) => {
-    const button = e.target as HTMLButtonElement;
-    handleTag(button.innerText, category);
-  };
+    const button = e.target as HTMLButtonElement
+    handleTag(button.innerText, category)
+  }
 
   const reset = () => {
-    dispatch(resetTag());
-  };
+    dispatch(resetTag())
+  }
 
   return (
     <main className="containerM h-full w-full overflow-x-hidden">
@@ -47,7 +48,7 @@ function mangaSearch() {
             <Input
               className="focus:border-1 w-full bg-button focus:border-primary"
               value={inputValue}
-              onChange={(e) => dispatch(setInputValue(e.target.value))}
+              onChange={e => dispatch(setInputValue(e.target.value))}
             />
           </div>
           <div className="flex md:flex md:flex-col">
@@ -72,7 +73,7 @@ function mangaSearch() {
 
       <MangaList />
     </main>
-  );
+  )
 }
 
-export default mangaSearch;
+export default mangaSearch

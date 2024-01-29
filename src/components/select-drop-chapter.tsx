@@ -1,27 +1,22 @@
-import Link from "next/link";
-import React from "react";
-import { Anime, Chapter } from "@prisma/client";
+import React from 'react'
+import Link from 'next/link'
+import { Anime, Chapter } from '@prisma/client'
 
 type AnimeWithChapters = Anime & {
-  chapters: Chapter[];
-};
+  chapters: Chapter[]
+}
 
 interface SelectDropBtnProps {
-  type?: string;
+  type?: string
   // data?: string[];
-  click?: (e: React.MouseEvent<HTMLButtonElement>, category: string) => void;
-  data?: AnimeWithChapters;
-  closeMenu?: any;
+  click?: (e: React.MouseEvent<HTMLButtonElement>, category: string) => void
+  data?: AnimeWithChapters
+  closeMenu?: any
 }
-function SelectDropChapter({
-  type,
-  click,
-  data,
-  closeMenu,
-}: SelectDropBtnProps) {
+function SelectDropChapter({ type, click, data, closeMenu }: SelectDropBtnProps) {
   return (
     <div className="flex w-full flex-col">
-      {data?.chapters?.map((chap) => (
+      {data?.chapters?.map(chap => (
         <Link
           className="flex items-center justify-center rounded-sm p-1 hover:bg-black/20"
           scroll={true}
@@ -32,6 +27,6 @@ function SelectDropChapter({
         </Link>
       ))}
     </div>
-  );
+  )
 }
-export default SelectDropChapter;
+export default SelectDropChapter

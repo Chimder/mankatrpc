@@ -1,22 +1,22 @@
-import { Skeleton } from "@/components/ui/skeleton";
-import { trpc } from "@/shared/utils/trpc";
-import { useSession } from "next-auth/react";
-import Link from "next/link";
-import { useRouter } from "next/router";
-import React from "react";
+import React from 'react'
+import Link from 'next/link'
+import { useRouter } from 'next/router'
+import { trpc } from '@/shared/utils/trpc'
+import { useSession } from 'next-auth/react'
+
+import { Skeleton } from '@/components/ui/skeleton'
 
 const FavoriteList = () => {
-  const path = useRouter();
-  const { data: session } = useSession();
+  const path = useRouter()
+  const { data: session } = useSession()
 
   const { data: mangas, isFetching } = trpc.manga.getUserFavoriteManga.useQuery(
     {
       email: session?.user?.email as string,
     },
-    { staleTime: 0 }
-  );
+    { staleTime: 0 },
+  )
 
-  console.log("FAVORITEMANGA", mangas);
 
   return (
     <div className="">
@@ -26,7 +26,7 @@ const FavoriteList = () => {
               <React.Fragment key={`skeleton-${index}`}>
                 <div
                   className="relative h-full w-full overflow-hidden rounded-sm"
-                  style={{ paddingBottom: "142%" }}
+                  style={{ paddingBottom: '142%' }}
                 >
                   <div className="absolute inset-0">
                     <Skeleton className="h-full w-full" />
@@ -34,20 +34,16 @@ const FavoriteList = () => {
                 </div>
               </React.Fragment>
             ))
-          : mangas?.map((manga) => (
+          : mangas?.map(manga => (
               <Link
                 className="relative z-50 flex h-full w-full"
                 key={manga?.name}
                 href={`/manka/${manga?.name}`}
               >
-                <img
-                  src={manga?.img}
-                  alt=""
-                  className="block h-full  max-w-full rounded"
-                />
+                <img src={manga?.img} alt="" className="block h-full  max-w-full rounded" />
                 <div
                   className="absolute bottom-1 z-50 flex w-full px-3 py-0 font-medium text-white sm:hidden "
-                  style={{ WebkitTextStroke: "0.2px black" }}
+                  style={{ WebkitTextStroke: '0.2px black' }}
                 >
                   <img src="/img/lang/JP.svg" width={20} height={20} alt="" />
                   <div className="">{manga?.name}</div>
@@ -56,7 +52,7 @@ const FavoriteList = () => {
             ))}
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default FavoriteList;
+export default FavoriteList

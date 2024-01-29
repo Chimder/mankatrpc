@@ -1,7 +1,8 @@
-import { db } from "@/shared/utils/db";
-import { trpc } from "@/shared/utils/trpc";
-import NextAuth from "next-auth";
-import GoogleProvider from "next-auth/providers/google";
+import { db } from '@/shared/utils/db'
+import { trpc } from '@/shared/utils/trpc'
+import NextAuth from 'next-auth'
+import GoogleProvider from 'next-auth/providers/google'
+
 export const authOptions = {
   // Configure one or more authentication providers
   providers: [
@@ -16,17 +17,17 @@ export const authOptions = {
         where: {
           email: user?.email,
         },
-      });
+      })
 
       if (!isUser) {
-        console.log("No User REggggg");
-        await db.user.create({ data: user });
+        console.log('No User REggggg')
+        await db.user.create({ data: user })
       } else {
-        console.log("already created");
+        console.log('already created')
       }
 
-      return true;
+      return true
     },
   },
-};
-export default NextAuth(authOptions);
+}
+export default NextAuth(authOptions)
